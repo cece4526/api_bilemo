@@ -21,6 +21,13 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
+    public function findForPagination() 
+    {
+        $qb = $this->createQueryBuilder('p')
+        ->orderBy('p.id','DESC');
+        
+        return $qb->getQuery();
+    }
 //    /**
 //     * @return Product[] Returns an array of Product objects
 //     */

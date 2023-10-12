@@ -19,6 +19,10 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-
+    App\Service\ProductService: # L'ID du service est le nom de la classe
+        arguments:
+            $requestStack: '@request_stack' # Injecte le service request_stack
+            $productRepo: '@App\Repository\ProductRepository' # Injecte le service ProductRepository
+            $paginator: '@knp_paginator' # Injecte le service knp_paginator
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
