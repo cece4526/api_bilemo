@@ -9,7 +9,19 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Hateoas\Configuration\Annotation as Hateoas;
 
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "detailCustomer",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getUsers")
+ * )
+ *
+ */
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 class Customer implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -70,6 +82,16 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
+    }
+
+    /**
+     * Allows you to return the field that is used for authentication.
+     *
+     * @return string
+     */
+    public function getUsername(): string 
+    {
+        return $this->getUserIdentifier();
     }
 
     /**
