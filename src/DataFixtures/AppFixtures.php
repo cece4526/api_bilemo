@@ -31,7 +31,7 @@ class AppFixtures extends Fixture
             $user = new User();
             $user->setFirstname('user'.$i);
             $user->setLastname('lastname'.$i);
-            $user->setRoles(["ROLE_ADMIN"]);
+            $user->setRoles(["ROLE_USER"]);
             $user->setEmail('user'.$i.'@user.fr');
             $user->setPassword($this->userPasswordHasher->hashPassword($user, "password"));
             $user->setCustomer($listCustomer[array_rand($listCustomer)]);

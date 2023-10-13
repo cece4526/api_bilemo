@@ -2,17 +2,22 @@
 
 namespace App\Controller;
 
+use App\Repository\UserRepository;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
-    #[Route('/user', name: 'app_user')]
-    public function index(): Response
+    #[Route('/api/users', name: 'users')]
+    public function getUserList(UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
-        return $this->render('user/index.html.twig', [
-            'controller_name' => 'UserController',
-        ]);
+        $userList = $userRepository->findAll();
+        $context = SerializationContext::create()->setGroups(['getUsers']);
+        $jsonUserList = $serializer->serialize($userList, 'json', $context);
+        return new JsonResponse($jsonUserList, Response::HTTP_OK, [], true);
     }
 }
