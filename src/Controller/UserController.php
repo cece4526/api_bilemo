@@ -40,4 +40,13 @@ class UserController extends AbstractController
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
+
+    // #[Route('/api/customers', name: 'createCustomers', methods: ['POST'])]
+    // public function createUser(Request $request, EntityManagerInterface $em, SerializerInterface $serializer, UrlG): JsonResponse 
+    // {
+    //     $em->remove($user);
+    //     $em->flush();
+
+    //     return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    // }
 }
