@@ -1,4 +1,16 @@
 <?php
+/**
+ * La classe Product représente un produit dans le système.
+ *
+ * Elle stocke des informations sur les produits disponibles, telles que leur nom, leur description, etc.
+ *
+ * @category Entités
+ * @package  VotrePackage
+ * @author   Créaced <cece45260@gmail.com>
+ * @license  none
+ * @link     none
+ * @since    8.2.0
+ */
 
 namespace App\Entity;
 

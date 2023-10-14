@@ -66,4 +66,34 @@ class UserController extends AbstractController
 
         return new JsonResponse($jsonUser, Response::HTTP_CREATED, [],true);
     }
+
+    #[Route('/api/users/{id}', name:"updateUser", methods:['PUT'])]
+    public function updateUser(JWTService $jwtService,CustomerRepository $customerRepository,Request $request, SerializerInterface $serializer, User $currentUser, EntityManagerInterface $em): JsonResponse 
+    {
+    
+        $newUser = $serializer->deserialize($request->getContent(), User::class, 'json');
+        $content = $request->getContent();
+        $data = json_decode($content, true);
+
+        $token = $request->headers->get('authorization');
+        $payload = $jwtService->getPayload($token);
+        $customer = $customerRepository->findOneByEmail($payload["username"]);
+
+        if ($currentUser->getCustomer()->getId() === $customer->getId()) {
+            if ($data["customer"] !== $currentUser->getCustomer()->getName()) {
+                $updateCustomer = $customerRepository->findOneByName($data["customer"]);
+                $currentUser->setCustomer($updateCustomer);
+            }
+        }
+
+        dd($currentUser);
+        $currentUser->setEmail($newUser->getEmail());
+        $currentUser->setFirstname($newUser->getFirstname());
+        $currentUser->setLastname($newUser->getLastname());
+    
+        $em->persist($currentUser);
+        $em->flush();
+    
+        return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+   }
 }
