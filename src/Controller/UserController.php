@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends AbstractController
 {
@@ -46,9 +47,16 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/users', name: 'createUser', methods: ['POST'])]
-    public function createUser(UserPasswordHasherInterface $userPasswordHasher, CustomerRepository $customerRepository ,Request $request, EntityManagerInterface $em, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator, JWTService $jwtService): JsonResponse 
+    public function createUser(ValidatorInterface $validator,UserPasswordHasherInterface $userPasswordHasher, CustomerRepository $customerRepository ,Request $request, EntityManagerInterface $em, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator, JWTService $jwtService): JsonResponse 
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
+
+        $errors = $validator->validate($user);
+
+        if ($errors->count() > 0) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
+
         $password = $user->getPassword();
         $user->setPassword($userPasswordHasher->hashPassword($user, $password));
         $token = $request->headers->get('authorization');
@@ -56,6 +64,7 @@ class UserController extends AbstractController
         $customer = $customerRepository->findOneByEmail($payload["username"]);
         $user->setRoles(["ROLE_USER"]);
         $user->setCustomer($customer);
+
         $em->persist($user);
         $em->flush();
 
@@ -80,13 +89,20 @@ class UserController extends AbstractController
         $customer = $customerRepository->findOneByEmail($payload["username"]);
 
         if ($currentUser->getCustomer()->getId() === $customer->getId()) {
-            if ($data["customer"] !== $currentUser->getCustomer()->getName()) {
-                $updateCustomer = $customerRepository->findOneByName($data["customer"]);
-                $currentUser->setCustomer($updateCustomer);
+            if ($customerRepository->isCustomerNameInList($data["customer"])) {
+                dd('ok');
+                if ($data["customer"] !== $currentUser->getCustomer()->getName()) {
+                    $updateCustomer = $customerRepository->findOneByName($data["customer"]);
+                    $currentUser->setCustomer($updateCustomer);
+                }
+            }else {
+                $errors = [
+                    "message" => "Le nom du client n'a pas ete trouve dans la liste."
+                ];
+                return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
             }
         }
 
-        dd($currentUser);
         $currentUser->setEmail($newUser->getEmail());
         $currentUser->setFirstname($newUser->getFirstname());
         $currentUser->setLastname($newUser->getLastname());

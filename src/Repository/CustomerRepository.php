@@ -57,6 +57,16 @@ class CustomerRepository extends ServiceEntityRepository implements PasswordUpgr
             ->getOneOrNullResult();
     }
 
+    function isCustomerNameInList(string $nameToFind): bool {
+        $customerList = $this->findAll();
+        foreach ($customerList as $customer) {
+            if ($customer->getName() === $nameToFind) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 //    /**
 //     * @return Customer[] Returns an array of Customer objects
 //     */
