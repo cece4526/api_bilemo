@@ -10,6 +10,7 @@ use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Hateoas\Configuration\Annotation as Hateoas;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Hateoas\Relation(
@@ -41,6 +42,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Groups(["getUsers"])]
     #[ORM\Column(length: 180, unique: true)]
+    #[Assert\Email(message: 'ceci n\'est pas un email.',)]
+    #[Assert\NotBlank(message: "L\'email est obligatoire")]
+    #[Assert\Length(min: 1, max: 180, minMessage: "L\'email doit faire au moins {{ limit }} caractères", maxMessage: "L\'email ne peut pas faire plus de {{ limit }} caractères")]
     private ?string $email = null;
 
     #[Groups(["getUsers"])]
@@ -54,10 +58,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[Assert\NotBlank(message: "Le Nom est obligatoire")]
+    #[Assert\Length(min: 2, max: 255, minMessage: "Le Nom doit faire au moins {{ limit }} caractères", maxMessage: "Le Nom ne peut pas faire plus de {{ limit }} caractères")]
     #[Groups(["getUsers"])]
     #[ORM\Column(length: 255)]
     private ?string $lastname = null;
 
+    #[Assert\NotBlank(message: "Le Prénom du livre est obligatoire")]
+    #[Assert\Length(min: 1, max: 255, minMessage: "Le Prénom doit faire au moins {{ limit }} caractères", maxMessage: "Le Prénom ne peut pas faire plus de {{ limit }} caractères")]
     #[Groups(["getUsers"])]
     #[ORM\Column(length: 255)]
     private ?string $firstname = null;
@@ -135,7 +143,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }

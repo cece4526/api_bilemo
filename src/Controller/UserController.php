@@ -73,40 +73,32 @@ class UserController extends AbstractController
 
         $location = $urlGenerator->generate('detailUser', ['id' => $user->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        return new JsonResponse($jsonUser, Response::HTTP_CREATED, [],true);
+        return new JsonResponse($jsonUser, Response::HTTP_CREATED, ["location" => $location],true);
     }
 
     #[Route('/api/users/{id}', name:"updateUser", methods:['PUT'])]
-    public function updateUser(JWTService $jwtService,CustomerRepository $customerRepository,Request $request, SerializerInterface $serializer, User $currentUser, EntityManagerInterface $em): JsonResponse 
+    public function updateUser(ValidatorInterface $validator,UserPasswordHasherInterface $userPasswordHasher, Request $request, SerializerInterface $serializer, User $currentUser, EntityManagerInterface $em): JsonResponse 
     {
     
         $newUser = $serializer->deserialize($request->getContent(), User::class, 'json');
-        $content = $request->getContent();
-        $data = json_decode($content, true);
-
-        $token = $request->headers->get('authorization');
-        $payload = $jwtService->getPayload($token);
-        $customer = $customerRepository->findOneByEmail($payload["username"]);
-
-        if ($currentUser->getCustomer()->getId() === $customer->getId()) {
-            if ($customerRepository->isCustomerNameInList($data["customer"])) {
-                dd('ok');
-                if ($data["customer"] !== $currentUser->getCustomer()->getName()) {
-                    $updateCustomer = $customerRepository->findOneByName($data["customer"]);
-                    $currentUser->setCustomer($updateCustomer);
-                }
-            }else {
-                $errors = [
-                    "message" => "Le nom du client n'a pas ete trouve dans la liste."
-                ];
-                return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
-            }
-        }
 
         $currentUser->setEmail($newUser->getEmail());
         $currentUser->setFirstname($newUser->getFirstname());
         $currentUser->setLastname($newUser->getLastname());
-    
+        $plainPassword = $newUser->getPassword();
+        if ($plainPassword !== null) {
+            if ($userPasswordHasher->isPasswordValid($currentUser, $plainPassword)) {
+            }
+            else {
+                $currentUser->setPassword($userPasswordHasher->hashPassword($newUser, $newUser->getPassword()));
+            }
+        }
+
+        $errors = $validator->validate($currentUser);
+        if ($errors->count() > 0) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
+
         $em->persist($currentUser);
         $em->flush();
     

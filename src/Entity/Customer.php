@@ -28,10 +28,10 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getUsers"])]
+    #[Groups(["getUsers", "getCustomers"])]
     private ?int $id = null;
 
-    #[Groups(["getUsers"])]
+    #[Groups(["getUsers", "getCustomers"])]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
@@ -44,10 +44,11 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[Groups(["getUsers"])]
+    #[Groups(["getUsers", "getCustomers"])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[Groups(["getCustomers"])]
     #[ORM\OneToMany(mappedBy: 'Customer', targetEntity: User::class, orphanRemoval: true)]
     private Collection $users;
 

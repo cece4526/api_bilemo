@@ -20,11 +20,10 @@ class ProductService
 
     }
 
-    public function getPaginatedProducts()
+    public function getPaginatedProducts(int $limit = 2)
     {
         $request = $this->requestStack->getMainRequest();
         $page = $request->query->getInt('page', 1);
-        $limit = 2;
 
         $productsQuery = $this->productRepo->findForPagination();
 
