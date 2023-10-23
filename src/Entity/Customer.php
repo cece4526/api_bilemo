@@ -10,6 +10,7 @@ use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Hateoas\Configuration\Annotation as Hateoas;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Hateoas\Relation(
@@ -32,6 +33,9 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[Groups(["getUsers", "getCustomers"])]
+    #[Assert\Email(message: 'ceci n\'est pas un email.',)]
+    #[Assert\NotBlank(message: "L\'email est obligatoire")]
+    #[Assert\Length(min: 1, max: 180, minMessage: "L\'email doit faire au moins {{ limit }} caractères", maxMessage: "L\'email ne peut pas faire plus de {{ limit }} caractères")]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
@@ -45,7 +49,9 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[Groups(["getUsers", "getCustomers"])]
-    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le Nom est obligatoire")]
+    #[Assert\Length(min: 2, max: 255, minMessage: "Le Nom doit faire au moins {{ limit }} caractères", maxMessage: "Le Nom ne peut pas faire plus de {{ limit }} caractères")]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $name = null;
 
     #[Groups(["getCustomers"])]

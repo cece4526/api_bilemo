@@ -64,7 +64,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $lastname = null;
 
-    #[Assert\NotBlank(message: "Le Prénom du livre est obligatoire")]
+    #[Assert\NotBlank(message: "Le Prénom est obligatoire")]
     #[Assert\Length(min: 1, max: 255, minMessage: "Le Prénom doit faire au moins {{ limit }} caractères", maxMessage: "Le Prénom ne peut pas faire plus de {{ limit }} caractères")]
     #[Groups(["getUsers"])]
     #[ORM\Column(length: 255)]

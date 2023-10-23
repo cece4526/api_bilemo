@@ -17,6 +17,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use  Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class UserController extends AbstractController
 {
@@ -38,6 +39,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/users/{id}', name: 'deleteUser', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour supprimer cette utilisateur')]
     public function deleteUser(User $user, EntityManagerInterface $em): JsonResponse 
     {
         $em->remove($user);
@@ -47,6 +49,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/users', name: 'createUser', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour créer cette utilisateur')]
     public function createUser(ValidatorInterface $validator,UserPasswordHasherInterface $userPasswordHasher, CustomerRepository $customerRepository ,Request $request, EntityManagerInterface $em, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator, JWTService $jwtService): JsonResponse 
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
@@ -77,6 +80,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/users/{id}', name:"updateUser", methods:['PUT'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour modifier cette utilisateur')]
     public function updateUser(ValidatorInterface $validator,UserPasswordHasherInterface $userPasswordHasher, Request $request, SerializerInterface $serializer, User $currentUser, EntityManagerInterface $em): JsonResponse 
     {
     
