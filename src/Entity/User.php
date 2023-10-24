@@ -22,10 +22,18 @@ use Symfony\Component\Validator\Constraints as Assert;
  *      exclusion = @Hateoas\Exclusion(groups="getUsers")
  * )
  *
- *  * @Hateoas\Relation(
+ * @Hateoas\Relation(
  *      "delete",
  *      href = @Hateoas\Route(
  *          "deleteUser",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getUsers")
+ * )
+ * @Hateoas\Relation(
+ *      "update",
+ *      href = @Hateoas\Route(
+ *          "updateUser",
  *          parameters = { "id" = "expr(object.getId())" }
  *      ),
  *      exclusion = @Hateoas\Exclusion(groups="getUsers")
@@ -34,6 +42,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

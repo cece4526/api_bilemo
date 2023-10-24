@@ -18,9 +18,30 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use  Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 class UserController extends AbstractController
 {
+    /**
+     * This method allows you to recover all the users.
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Return the list of users",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * )
+     * @OA\Tag(name="Users")
+     *
+     * @param UserRepository $userRepository
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     #[Route('/api/users', name: 'users', methods: ['GET'])]
     public function getUserList(UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
@@ -30,14 +51,51 @@ class UserController extends AbstractController
         return new JsonResponse($jsonUserList, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * this method returns the detail of a user.
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Return the detail of a user",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * )
+     * @OA\Tag(name="Users")
+     *
+     * @param User $user
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     #[Route('/api/users/{id}', name: 'detailUser', methods: ['GET'])]
     public function getDetailUser(User $user, SerializerInterface $serializer) : JsonResponse 
     {
+
         $context = SerializationContext::create()->setGroups(['getUsers']);
         $jsonUser = $serializer->serialize($user, 'json', $context);
         return new JsonResponse($jsonUser, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * this method delete a user.
+     *
+     * @OA\Response(
+     *     response=204,
+     *     description="Return null",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * )
+     * @OA\Tag(name="Users")
+     *
+     * @param User $user
+     * @param EntityManagerInterface $em
+     * @return JsonResponse
+     */
     #[Route('/api/users/{id}', name: 'deleteUser', methods: ['DELETE'])]
     #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour supprimer cette utilisateur')]
     public function deleteUser(User $user, EntityManagerInterface $em): JsonResponse 
@@ -48,8 +106,26 @@ class UserController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * this method create a user.
+     *
+     * @OA\Response(
+     *     response=201,
+     *     description="Return user",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * )
+     * @OA\Tag(name="Users")
+     *
+     * @param User $user
+     * @param EntityManagerInterface $em
+     * @return JsonResponse
+     */    
     #[Route('/api/users', name: 'createUser', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour créer cette utilisateur')]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour créer un utilisateur')]
     public function createUser(ValidatorInterface $validator,UserPasswordHasherInterface $userPasswordHasher, CustomerRepository $customerRepository ,Request $request, EntityManagerInterface $em, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator, JWTService $jwtService): JsonResponse 
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
@@ -79,11 +155,32 @@ class UserController extends AbstractController
         return new JsonResponse($jsonUser, Response::HTTP_CREATED, ["location" => $location],true);
     }
 
+    /**
+     * this method modified a user.
+     *
+     * @OA\Response(
+     *     response=204,
+     *     description="Return null",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * )
+     * @OA\Tag(name="Users")
+     *
+     * @param User $currentUser
+     * @param ValidatorInterface $validator
+     * @param UserPasswordHasherInterface $userPasswordHasher
+     * @param Request $request
+     * @param SerializerInterface $serializer
+     * @param EntityManagerInterface $em
+     * @return JsonResponse
+     */   
     #[Route('/api/users/{id}', name:"updateUser", methods:['PUT'])]
     #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour modifier cette utilisateur')]
     public function updateUser(ValidatorInterface $validator,UserPasswordHasherInterface $userPasswordHasher, Request $request, SerializerInterface $serializer, User $currentUser, EntityManagerInterface $em): JsonResponse 
     {
-    
         $newUser = $serializer->deserialize($request->getContent(), User::class, 'json');
 
         $currentUser->setEmail($newUser->getEmail());
