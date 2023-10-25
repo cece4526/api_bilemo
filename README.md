@@ -77,7 +77,7 @@ Php ainsi que Composer doivent être installés sur votre ordinateur afin de pou
 
 ## Documentation Technique
 
- * http://localhost:8000/api/doc
+ * http://127.0.0.1:8000/doc
 
 ## Outils utilisés
 
