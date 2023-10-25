@@ -107,17 +107,36 @@ class UserController extends AbstractController
     }
 
     /**
-     * this method create a user.
+     * this method creates a user.
+     * 
+     * @OA\RequestBody(
+     *  required=true,
+     *   @OA\MediaType(
+     *    mediaType="application/json",
+     *     @OA\Schema(
+     *       @OA\Property(property="firstname", type="string", example="John"),
+     *       @OA\Property(property="lastname", description="The lastname of the new user.", type="string", example="Doe"),
+     *       @OA\Property(property="password", description="The password of the new user.", type="string", example="password"),
+     *       @OA\Property(property="email", description="Email address of the new user.", type="string", format="email", example="j.doe91@yopmail.fr")
+     *     )
+     *   )
+     * )
      *
      * @OA\Response(
      *     response=201,
-     *     description="Return user",
+     *     description="User created",
      *     @OA\JsonContent(
      *        type="array",
      *        @OA\Items(ref=@Model(type=User::class))
      *     )
      * )
+     * @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     description="The page you want to retrieve",
+     *     @OA\Schema(type="int")
      * )
+     * 
      * @OA\Tag(name="Users")
      *
      * @param User $user
@@ -158,6 +177,18 @@ class UserController extends AbstractController
     /**
      * this method modified a user.
      *
+     * @OA\RequestBody(
+     *  required=true,
+     *   @OA\MediaType(
+     *    mediaType="application/json",
+     *     @OA\Schema(
+     *       @OA\Property(property="firstname", type="string", example="John"),
+     *       @OA\Property(property="lastname", description="The lastname of the new user.", type="string", example="Doe"),
+     *       @OA\Property(property="password", description="The password of the new user.", type="string", example="password"),
+     *       @OA\Property(property="email", description="Email address of the new user.", type="string", format="email", example="j.doe91@yopmail.fr")
+     *     )
+     *   )
+     * )
      * @OA\Response(
      *     response=204,
      *     description="Return null",
